@@ -1,0 +1,41 @@
+﻿<Properties StartupConfiguration="{CB3603E6-A074-462F-ADEB-6AA7E2B7896C}|Default">
+  <MonoDevelop.Ide.Workbench ActiveDocument="eCups/Components/Fields/BorderInputField.cs">
+    <Files>
+      <File FileName="eCups/Pages/Custom/SignUp.cs" Line="682" Column="66" />
+      <File FileName="eCups/Models/User.cs" />
+      <File FileName="eCups/App.cs" />
+      <File FileName="eCups/AppContainer.cs" />
+      <File FileName="eCups/Services/Api/ApiBridge.cs" />
+      <File FileName="eCups/Components/Fields/BorderInputField.cs" Line="85" Column="72" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="eCups" expanded="True">
+            <Node name="eCups" expanded="True">
+              <Node name="Dependencies" expanded="True" />
+              <Node name="Branding" expanded="True" />
+              <Node name="Components" expanded="True">
+                <Node name="Fields" expanded="True">
+                  <Node name="BorderInputField.cs" selected="True" />
+                </Node>
+              </Node>
+            </Node>
+            <Node name="eCups.Android" expanded="True" />
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.ItemProperties.eCups.iOS PreferredExecutionTarget="MonoDevelop.IPhone.IPhoneSimulatorTarget.A71E3F23-A52D-4220-973B-D9E3C649B7B8" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.ItemProperties.eCups.Android PreferredExecutionTarget="Android.2a64f3d40a047ece" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint file="/Users/738908/Desktop/ecups_mobile-main/eCups/Components/Composites/LabelEntry.cs" relfile="eCups/Components/Composites/LabelEntry.cs" line="137" column="1" />
+      <Breakpoint file="/Users/738908/Desktop/ecups_mobile-main/eCups/Components/Composites/LabelEntry.cs" relfile="eCups/Components/Composites/LabelEntry.cs" line="143" column="1" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>

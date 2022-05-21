@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="1.0" package="com.click.eCups" android:versionCode="1">
+	<uses-sdk android:minSdkVersion="23" android:targetSdkVersion="30" />
+	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	<!--Location Permissions -->
+	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+	<application android:label="eCups" android:icon="@mipmap/icon" android:theme="@style/MainTheme.Splash">
+		<!-- Google Maps V2 API Key. -->
+		<meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyCxXraM8ZLI3dzGwrnY6YqYvoLLuICmlUo" />
+		<!--Google Play Services version -->
+		<meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
+		<!--For API 28 and over use Apache HTTP -->
+		<uses-library android:name="org.apache.http.legacy" android:required="false" />
+	</application>
+</manifest>
