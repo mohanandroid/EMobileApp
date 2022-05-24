@@ -10,6 +10,8 @@ namespace eCups
     {
         // The AppSession holds temporary data used by the app
         public static User CurrentUser;
+
+        public static User.Details CurrentUserDetails;
         public static List<Item> TestItems;
 
         public static int SignUpStage;
@@ -37,6 +39,8 @@ namespace eCups
             CupScanned = false;
 
             CurrentUser = new User();
+
+            CurrentUserDetails = new User.Details();
 
             TestItems = new List<Item>();
 

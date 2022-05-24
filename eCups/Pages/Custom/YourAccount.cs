@@ -32,7 +32,7 @@ namespace eCups.Pages.Custom
             };
 
 
-            CScrollView scroll = new CScrollView
+            /*CScrollView scroll = new CScrollView
             {
                 BackgroundColor = Color.White,
                 Orientation = ScrollOrientation.Vertical,
@@ -46,11 +46,13 @@ namespace eCups.Pages.Custom
             };
 
             // add a background?
-            AddBackgroundView(scroll);
+            AddBackgroundView(scroll);*/
             AddDecor("top_decor.png", Units.ScreenHeight30Percent, LayoutOptions.Start);
 
             ContentContainer = BuildContent();
             PageContent.Children.Add(ContentContainer);
+
+
         }
 
         public StackLayout AccountScrollContent()
@@ -121,11 +123,26 @@ namespace eCups.Pages.Custom
 
             mainLayout.Children.Add(MainLogo.Content);
             mainLayout.Children.Add(Heading);
+            CScrollView scroll = new CScrollView
+            {
+                BackgroundColor = Color.White,
+                Orientation = ScrollOrientation.Vertical,
+                Content = AccountScrollContent(),
+                Elastic = false,
+                HorizontalOptions = LayoutOptions.FillAndExpand,
+                VerticalOptions = LayoutOptions.EndAndExpand,
+                WidthRequest = Units.ScreenWidth,
+                //HeightRequest = Units.ScreenHeight - Units.ScreenHeight25Percent,
+                Margin = new Thickness(0, 0, 0, 0),
+            };
 
+            // add a background?
+            //AddBackgroundView(scroll);
+            mainLayout.Children.Add(scroll);
             return mainLayout;
         }
 
-        Grid MyCupGrid(Ecup cup,bool addCupButton)
+        Grid MyCupGrid(Ecup cup, bool addCupButton)
         {
             Grid content = new Grid
             {
@@ -222,10 +239,10 @@ namespace eCups.Pages.Custom
                 Margin = new Thickness(0, 10)
             };
 
-            LabelEntry name = new LabelEntry("Name:", AppSession.CurrentUser.GetFullName(), false);
-            LabelEntry email = new LabelEntry("Email:", AppSession.CurrentUser.EmailAddress, false);
-            LabelEntry user = new LabelEntry("User:", AppSession.CurrentUser.Username, false);
-            LabelEntry password = new LabelEntry("Password:", AppSession.CurrentUser.Password, true);
+            LabelEntry name = new LabelEntry("Name:", AppSession.CurrentUserDetails.name, false);
+            LabelEntry email = new LabelEntry("Email:", AppSession.CurrentUserDetails.email, false);
+            LabelEntry user = new LabelEntry("User:", AppSession.CurrentUserDetails.surname, false);
+            LabelEntry password = new LabelEntry("Password:", "", false);
 
             password.Content.GestureRecognizers.Add(new TapGestureRecognizer()
             {
@@ -252,8 +269,9 @@ namespace eCups.Pages.Custom
                 Margin = new Thickness(0, 10)
             };
 
-            LabelEntry address = new LabelEntry("Address:", AppSession.CurrentUser.Address.FormattedAddress(), false);
-            LabelEntry contact = new LabelEntry("Contact:", AppSession.CurrentUser.MobileNumber, false);
+            //LabelEntry address = new LabelEntry("Address:", AppSession.CurrentUserDetails.address3.FormattedAddress(), false);
+            LabelEntry address = new LabelEntry("Address:", AppSession.CurrentUserDetails.address2, false);
+            LabelEntry contact = new LabelEntry("Contact:", AppSession.CurrentUserDetails.phone.ToString(), false);
 
             infoStack.Children.Add(detailsHeader);
             infoStack.Children.Add(name.Content);
@@ -320,13 +338,19 @@ namespace eCups.Pages.Custom
             {
                 await DebugUpdate(AppSettings.TransitionVeryFast);
 
+                bool value = await App.ApiBridge.GetUser();
+
+
+
                 this.HasHeader = false;
                 this.HasFooter = true;
                 await base.Update();
-
-                PageContent.Children.Remove(ContentContainer);
-                ContentContainer = BuildContent();
-                PageContent.Children.Add(ContentContainer);
+                if (value)
+                {
+                    PageContent.Children.Remove(ContentContainer);
+                    ContentContainer = BuildContent();
+                    PageContent.Children.Add(ContentContainer);
+                }
 
                 AddMenuBar();
                 //App.ShowMenuButton();
@@ -334,5 +358,7 @@ namespace eCups.Pages.Custom
                 NeedsRefreshing = false;
             }
         }
+
+
     }
 }

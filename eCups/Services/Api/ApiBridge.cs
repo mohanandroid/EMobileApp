@@ -40,7 +40,7 @@ namespace eCups.Services
 
                     JObject jObject = new JObject();
 
-                    jObject.Add("email_address", username);
+                    jObject.Add("username", username);
                     jObject.Add("password", password);
                     jObject.Add("device_token", "mobile");
                     jObject.Add("device_type", "mobile");
@@ -61,6 +61,7 @@ namespace eCups.Services
                         if (responseresult.details.auth_token != null)
                         {
                             AppSession.CurrentUser.AuthToken = responseresult.details.auth_token;
+                            return true;
                         }
                         /*var returnedJObject = JObject.Parse(json);
 
@@ -70,7 +71,7 @@ namespace eCups.Services
                             App.ShowAlert("Oh Dear!", "There was an issue with Authenticating your account, please contact support");
                         }*/
 
-                        return true;
+                        return false;
                     }
                     else
                     {
@@ -100,15 +101,24 @@ namespace eCups.Services
 
                     ResetRequestHeaders(true);
 
-                    var result = await HttpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
-                    var json = await result.Content.ReadAsStringAsync();
-                    var jObject = JObject.Parse(json);
+                    var response = await HttpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+                    var result = await response.Content.ReadAsStringAsync();
 
-                    AppSession.CurrentUser = JsonConvert.DeserializeObject<User>(json);
+
+
+                    var responseresult = JsonConvert.DeserializeObject<User>(result);
+                    if (responseresult.details != null)
+                    {
+
+                        AppSession.CurrentUserDetails = responseresult.details;
+                        return true;
+                    }
+
+
 
                     Console.WriteLine($"User : {AppSession.CurrentUser}");
 
-                    return true;
+
                 }
                 catch
                 {
@@ -177,8 +187,8 @@ namespace eCups.Services
                     {
                         var result = await response.Content.ReadAsStringAsync();
 
+                        //var responseresult = JsonConvert.DeserializeObject<User>(result);
                         var responseresult = JsonConvert.DeserializeObject<User>(result);
-
                         return responseresult;
                     }
                 }
@@ -193,7 +203,7 @@ namespace eCups.Services
             return null;
         }
 
-        public async Task<bool> UpdateUserDetails(User user)
+        public async Task<bool> UpdateUserDetails(string key, string value)
         {
             if (ApiConnectionAvailable())
             {
@@ -203,22 +213,26 @@ namespace eCups.Services
 
                     ResetRequestHeaders(true);
 
-                    JObject jObject = (JObject)JsonConvert.SerializeObject(user);
+                    JObject jObject = new JObject();
 
-                    Console.WriteLine($"Registering : {jObject}");
+                    jObject.Add(key, value);
+
 
                     string jsonString = CleanUpJson(jObject.ToString());
 
+
                     StringContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
-                    content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                    //content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-                    var result = await HttpClient.PutAsync(uri, content).ConfigureAwait(false);
+                    var response = await HttpClient.PostAsync(uri, content).ConfigureAwait(false);
 
-                    if (result.IsSuccessStatusCode)
+                    if (response.IsSuccessStatusCode)
                     {
-                        var json = await result.Content.ReadAsStringAsync();
+                        var result = await response.Content.ReadAsStringAsync();
 
-                        AppSession.CurrentUser = JsonConvert.DeserializeObject<User>(json);
+                        //var responseresult = JsonConvert.DeserializeObject<User>(result);
+                        var responseresult = JsonConvert.DeserializeObject<User>(result);
+                        AppSession.CurrentUserDetails = responseresult.details;
 
                         return true;
                     }

@@ -115,14 +115,14 @@ namespace eCups.Pages.Custom
                        {
                            Device.BeginInvokeOnMainThread(async () =>
                            {
-                               if (!string.IsNullOrEmpty(Username.GetText()))
+                               if (!string.IsNullOrEmpty(Username.GetText()) && !string.IsNullOrEmpty(Password.GetText()))
                                {
                                    await App.ShowLoading();
                                    LoginServiceCall();
                                }
                                else
                                {
-                                   App.ShowAlert("Oh Dear!", "Please enter a username");
+                                   App.ShowAlert("Oh Dear!", "Please enter a valid detials");
                                }
                            });
                        })
@@ -138,9 +138,9 @@ namespace eCups.Pages.Custom
             Username.Content.Margin = new Thickness(Units.ScreenWidth5Percent, 0);
             Username.SetDarkBackgroundTheme();
 
-#if DEBUG
-            Username.TextEntry.Text = "Debug@test.co.uk";
-#endif
+            /*#if DEBUG
+                        Username.TextEntry.Text = "Debug@test.co.uk";
+            #endif*/
 
             Password = new BorderInputField("Password", Keyboard.Text, true);
             Password.Content.Margin = new Thickness(Units.ScreenWidth5Percent, 0);

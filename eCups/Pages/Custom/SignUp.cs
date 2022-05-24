@@ -9,10 +9,10 @@ using eCups.Helpers;
 using eCups.Layouts.Custom;
 using eCups.Layouts.Custom.Panels;
 using eCups.Layouts.Custom.Tiles;
+using Xamarin.Forms;
 using eCups.Models;
 using eCups.Renderers;
 using eCups.Services;
-using Xamarin.Forms;
 
 namespace eCups.Pages.Custom
 {
@@ -42,7 +42,6 @@ namespace eCups.Pages.Custom
         ColourButton ContinueButton;
         ColourButton CreateAccountButton;
 
-
         BorderInputField FirstName;
         BorderInputField Surname;
         BorderInputField DateOfBirth;
@@ -56,12 +55,15 @@ namespace eCups.Pages.Custom
         BorderInputField Password;
         BorderInputField PasswordAgain;
 
+        User user;
+
+
+
         // stick these in global app settings lad
         public const int USER_DETAILS = 0;
         public const int ADD_ECUP = 1;
         public const int FINAL_SETUP = 2;
 
-        User user;
 
         public SignUp()
         {
@@ -615,8 +617,10 @@ namespace eCups.Pages.Custom
                     //    AppSession.SignUpStage = 0;
                     //    await App.PerformActionAsync((int)Actions.ActionName.GoToPage, (int)AppSettings.PageNames.FirstLoad);
                     //}
-                    await App.ShowLoading();
+
+                    // await App.ShowLoading();
                     RegisterServiceCall();
+                    // await App.PerformActionAsync((int)Actions.ActionName.GoToPage, (int)AppSettings.PageNames.Welcome);
                     break;
                 case ADD_ECUP:
                     if (AppSession.CupScanned)
@@ -643,6 +647,8 @@ namespace eCups.Pages.Custom
             ContentContainer = BuildContent();
             PageContent.Children.Add(ContentContainer);
         }
+
+
 
         private void SetSection(int section)
         {
@@ -688,22 +694,25 @@ namespace eCups.Pages.Custom
                 AreaCode = PostCode.GetText(),
                 Username = Username.GetText(),
                 Password = Password.GetText(),
-                DeviceType="mobile"
+                DeviceType = "mobile"
             };
             var result = await App.ApiBridge.Register(user);
             if (result != null)
             {
                 await App.HideLoading();
-                if (result.error){
+                if (result.error)
+                {
                     App.ShowAlert("Alert", result.message);
                 }
-                else {
+                else
+                {
                     AppSession.CurrentUser = result;
-                    //NextSection();
+                    AppSession.CurrentUserDetails = result.details;
                     await App.PerformActionAsync((int)Actions.ActionName.GoToPage, (int)AppSettings.PageNames.WelcomeLogin);
+                    //NextSection();
                 }
             }
-            
+
         }
     }
 }
