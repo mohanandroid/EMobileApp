@@ -42,24 +42,33 @@ namespace eCups.Services
 
                     jObject.Add("email_address", username);
                     jObject.Add("password", password);
+                    jObject.Add("device_token", "mobile");
+                    jObject.Add("device_type", "mobile");
 
                     string jsonString = CleanUpJson(jObject.ToString());
 
                     StringContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
-                    content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                    //content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-                    var result = await HttpClient.PostAsync(uri, content).ConfigureAwait(false);
+                    var response = await HttpClient.PostAsync(uri, content).ConfigureAwait(false);
 
-                    if (result.IsSuccessStatusCode)
+                    if (response.IsSuccessStatusCode)
                     {
-                        var json = await result.Content.ReadAsStringAsync();
-                        var returnedJObject = JObject.Parse(json);
+                        var result = await response.Content.ReadAsStringAsync();
+
+
+                        var responseresult = JsonConvert.DeserializeObject<User>(result);
+                        if (responseresult.details.auth_token != null)
+                        {
+                            AppSession.CurrentUser.AuthToken = responseresult.details.auth_token;
+                        }
+                        /*var returnedJObject = JObject.Parse(json);
 
                         // The below ensures app will not crash in the case of missing keys.
-                        if (returnedJObject.TryGetValue("token", out JToken value)) {
+                        if (returnedJObject.TryGetValue("auth_token", out JToken value)) {
                             AppSession.CurrentUser.AuthToken = (string)value;
                             App.ShowAlert("Oh Dear!", "There was an issue with Authenticating your account, please contact support");
-                        }
+                        }*/
 
                         return true;
                     }

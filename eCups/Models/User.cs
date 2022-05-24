@@ -115,6 +115,8 @@ namespace eCups.Models
             public DateTime updated_at { get; set; }
             public DateTime created_at { get; set; }
             public int id { get; set; }
+
+            public string auth_token { get; set; }
         }
     }
 }

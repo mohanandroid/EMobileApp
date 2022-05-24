@@ -115,13 +115,14 @@ namespace eCups.Pages.Custom
                        {
                            Device.BeginInvokeOnMainThread(async () =>
                            {
-                               if (Validation.IsValidEmail(Username.GetText()))
+                               if (!string.IsNullOrEmpty(Username.GetText()))
                                {
-                                   ShowLoggedInView();
+                                   await App.ShowLoading();
+                                   LoginServiceCall();
                                }
                                else
                                {
-                                   App.ShowAlert("Oh Dear!", "Please enter a valid email address");
+                                   App.ShowAlert("Oh Dear!", "Please enter a username");
                                }
                            });
                        })
@@ -178,6 +179,24 @@ namespace eCups.Pages.Custom
             MainLayout.Children.Add(SignInButton.Content);
 
             MainLayout.Children.Add(CupAndCrab.Content);
+        }
+
+        private async void LoginServiceCall()
+        {
+            var result = await App.ApiBridge.LogIn(Username.GetText(), Password.GetText());
+            await App.HideLoading();
+            if (!result)
+            {
+                App.ShowAlert("Alert", "Login failed");
+            }
+            else
+            {
+                ShowLoggedInView();
+                //AppSession.CurrentUser = result;
+                //await App.PerformActionAsync((int)Actions.ActionName.GoToPage, (int)AppSettings.PageNames.WelcomeLogin);
+                //NextSection();
+            }
+
         }
 
         public override async Task Update()

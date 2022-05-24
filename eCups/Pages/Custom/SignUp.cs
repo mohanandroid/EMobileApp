@@ -699,7 +699,8 @@ namespace eCups.Pages.Custom
                 }
                 else {
                     AppSession.CurrentUser = result;
-                    NextSection();
+                    //NextSection();
+                    await App.PerformActionAsync((int)Actions.ActionName.GoToPage, (int)AppSettings.PageNames.WelcomeLogin);
                 }
             }
             
