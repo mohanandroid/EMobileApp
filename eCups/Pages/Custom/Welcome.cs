@@ -192,9 +192,7 @@ namespace eCups.Pages.Custom
             else
             {
                 ShowLoggedInView();
-                //AppSession.CurrentUser = result;
-                //await App.PerformActionAsync((int)Actions.ActionName.GoToPage, (int)AppSettings.PageNames.WelcomeLogin);
-                //NextSection();
+               
             }
 
         }

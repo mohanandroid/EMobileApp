@@ -70,10 +70,10 @@ namespace eCups.Components.Composites
                 TextDecorations = TextDecorations.Underline,
                 FontSize = 12,
                 TextColor = Color.FromHex(Colors.EC_BRIGHT_GREEN),
-                VerticalOptions = LayoutOptions.Center,
-                HorizontalOptions = LayoutOptions.Start,
-                HorizontalTextAlignment = TextAlignment.Start,
-                VerticalTextAlignment = TextAlignment.Center,
+                //VerticalOptions = LayoutOptions.Center,
+                //HorizontalOptions = LayoutOptions.Start,
+                //HorizontalTextAlignment = TextAlignment.Start,
+                //VerticalTextAlignment = TextAlignment.Center,
             };
 
             Entry entry = new Entry
@@ -87,6 +87,7 @@ namespace eCups.Components.Composites
                 HorizontalOptions = LayoutOptions.Start,
                 HorizontalTextAlignment = TextAlignment.Start,
                 VerticalTextAlignment = TextAlignment.Center,
+                Placeholder = titleText
             };
 
             entry.TextChanged += Entry_TextChanged;
@@ -137,6 +138,34 @@ namespace eCups.Components.Composites
         private void Entry_Unfocused(object sender, FocusEventArgs e)
         {
             //Update User Profile
+            Entry entry = sender as Entry;
+            string key="";
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                await App.ShowLoading();
+                if (entry.Placeholder.Contains("Name")){
+                    key = "name";
+                }else if (entry.Placeholder.Contains("Email")){
+                    key = "email";
+                }else if (entry.Placeholder.Contains("User")){
+                    key = "username";
+                }else if (entry.Placeholder.Contains("Password")){
+                    key = "password";
+                }else if (entry.Placeholder.Contains("Contact")){
+                    key = "phone";
+                }
+                var result = await App.ApiBridge.UpdateUserDetails(key, entry.Text);
+                if (result.error)
+                {
+                    await App.HideLoading();
+                    App.ShowAlert("Alert", result.message);
+                }
+                else
+                {
+                    await App.HideLoading();
+                    AppSession.CurrentUserDetails = result.details;
+                }
+            });
         }
 
         private void Entry_TextChanged(object sender, TextChangedEventArgs e)
