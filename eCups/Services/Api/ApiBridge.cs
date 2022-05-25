@@ -55,8 +55,6 @@ namespace eCups.Services
                     if (response.IsSuccessStatusCode)
                     {
                         var result = await response.Content.ReadAsStringAsync();
-
-
                         var responseresult = JsonConvert.DeserializeObject<User>(result);
                         if (responseresult.details.auth_token != null)
                         {
@@ -103,24 +101,16 @@ namespace eCups.Services
 
                     var response = await HttpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
                     var result = await response.Content.ReadAsStringAsync();
-
-
-
                     var responseresult = JsonConvert.DeserializeObject<User>(result);
                     if (responseresult.details != null)
                     {
-
                         AppSession.CurrentUserDetails = responseresult.details;
                         return true;
                     }
 
-
-
                     Console.WriteLine($"User : {AppSession.CurrentUser}");
-
-
                 }
-                catch
+                catch(Exception ex)
                 {
                     //unkown error
                 }
@@ -186,8 +176,6 @@ namespace eCups.Services
                     if (response.IsSuccessStatusCode)
                     {
                         var result = await response.Content.ReadAsStringAsync();
-
-                        //var responseresult = JsonConvert.DeserializeObject<User>(result);
                         var responseresult = JsonConvert.DeserializeObject<User>(result);
                         return responseresult;
                     }
@@ -203,7 +191,7 @@ namespace eCups.Services
             return null;
         }
 
-        public async Task<bool> UpdateUserDetails(string key, string value)
+        public async Task<User> UpdateUserDetails(string key, string value)
         {
             if (ApiConnectionAvailable())
             {
@@ -216,10 +204,8 @@ namespace eCups.Services
                     JObject jObject = new JObject();
 
                     jObject.Add(key, value);
-
-
+                   
                     string jsonString = CleanUpJson(jObject.ToString());
-
 
                     StringContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
                     //content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
@@ -229,12 +215,8 @@ namespace eCups.Services
                     if (response.IsSuccessStatusCode)
                     {
                         var result = await response.Content.ReadAsStringAsync();
-
-                        //var responseresult = JsonConvert.DeserializeObject<User>(result);
                         var responseresult = JsonConvert.DeserializeObject<User>(result);
-                        AppSession.CurrentUserDetails = responseresult.details;
-
-                        return true;
+                        return responseresult;
                     }
                 }
                 catch
@@ -245,7 +227,7 @@ namespace eCups.Services
 
             ShowConnectionAlert();
 
-            return false;
+            return null;
         }
 
         public async Task<bool> AddNewECup(Ecup cup)

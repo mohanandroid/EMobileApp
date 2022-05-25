@@ -61,7 +61,7 @@ namespace eCups.Pages.Custom
             {
                 HorizontalOptions = LayoutOptions.FillAndExpand,
                 VerticalOptions = LayoutOptions.FillAndExpand,
-                Margin = new Thickness(0, 0, 0, 50)
+                Margin = new Thickness(0, 0, 0, 0)
             };
 
             //TODO - Loop foreach cup setting last to true
@@ -339,8 +339,6 @@ namespace eCups.Pages.Custom
                 await DebugUpdate(AppSettings.TransitionVeryFast);
 
                 bool value = await App.ApiBridge.GetUser();
-
-
 
                 this.HasHeader = false;
                 this.HasFooter = true;
