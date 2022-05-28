@@ -8,6 +8,7 @@ using eCups.DatabaseObjects;
 using eCups.Models;
 using eCups.Models.Custom;
 using eCups.Services.Api;
+using eCups.Services.Storage;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Plugin.Connectivity;
@@ -28,7 +29,7 @@ namespace eCups.Services
             return CrossConnectivity.Current.IsConnected;
         }
 
-        public async Task<bool> LogIn(string username, string password)
+        public async Task<User> LogIn(string username, string password)
         {
             if (ApiConnectionAvailable())
             {
@@ -55,11 +56,13 @@ namespace eCups.Services
                     if (response.IsSuccessStatusCode)
                     {
                         var result = await response.Content.ReadAsStringAsync();
+
+
                         var responseresult = JsonConvert.DeserializeObject<User>(result);
                         if (responseresult.details.auth_token != null)
                         {
                             AppSession.CurrentUser.AuthToken = responseresult.details.auth_token;
-                            return true;
+
                         }
                         /*var returnedJObject = JObject.Parse(json);
 
@@ -69,13 +72,13 @@ namespace eCups.Services
                             App.ShowAlert("Oh Dear!", "There was an issue with Authenticating your account, please contact support");
                         }*/
 
-                        return false;
+                        return responseresult;
                     }
-                    else
+                    /*else
                     {
                         App.ShowAlert("Oh Dear!", "There was an issue logging you in, please double check your details and try again");
                         return false;
-                    }
+                    }*/
 
 
                 }
@@ -86,7 +89,7 @@ namespace eCups.Services
             }
 
             ShowConnectionAlert();
-            return false;
+            return null;
         }
 
         public async Task<bool> GetUser()
@@ -101,16 +104,29 @@ namespace eCups.Services
 
                     var response = await HttpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
                     var result = await response.Content.ReadAsStringAsync();
+
+
+
                     var responseresult = JsonConvert.DeserializeObject<User>(result);
                     if (responseresult.details != null)
                     {
+
                         AppSession.CurrentUserDetails = responseresult.details;
+                        AppSession.CurrentUser = responseresult;
+                        if (responseresult.details.cups_holding != null && responseresult.details.cups_holding.Count > 0)
+                        {
+                            LocalDataStore.Save("Cupscount", "" + responseresult.details.cups_holding.Count);
+                        }
                         return true;
                     }
 
+
+
                     Console.WriteLine($"User : {AppSession.CurrentUser}");
+
+
                 }
-                catch(Exception ex)
+                catch
                 {
                     //unkown error
                 }
@@ -197,18 +213,34 @@ namespace eCups.Services
             {
                 try
                 {
-                    string uri = ApiRoutes.UpdateUserDetailsUrl;
+
+                    string uri = "";
 
                     ResetRequestHeaders(true);
 
                     JObject jObject = new JObject();
 
                     jObject.Add(key, value);
-                   
+
+                    if (key.Contains("password"))
+                    {
+
+                        jObject.Add("confirm-password", value);
+                        jObject.Add("email", AppSession.CurrentUserDetails.email);
+                        LocalDataStore.Save("Password", value);
+                        uri = ApiRoutes.UpdateUserPasswordUrl;
+                    }
+                    else
+                    {
+                        uri = ApiRoutes.UpdateUserDetailsUrl;
+
+                    }
+
+
                     string jsonString = CleanUpJson(jObject.ToString());
 
+
                     StringContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
-                    //content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
                     var response = await HttpClient.PostAsync(uri, content).ConfigureAwait(false);
 
@@ -227,6 +259,78 @@ namespace eCups.Services
 
             ShowConnectionAlert();
 
+            return null;
+        }
+
+        public async Task<User> Qrcode(string qrresponse)
+        {
+            if (ApiConnectionAvailable())
+            {
+                try
+                {
+                    string uri = ApiRoutes.QrCodeUrl;
+
+                    ResetRequestHeaders(true);
+
+                    StringContent content = new StringContent(qrresponse, Encoding.UTF8, "application/json");
+                    //content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+                    var response = await HttpClient.PostAsync(uri, content).ConfigureAwait(false);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        var responseresult = JsonConvert.DeserializeObject<User>(result);
+                        return responseresult;
+
+                    }
+
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+
+            ShowConnectionAlert();
+            return null;
+        }
+
+        public async Task<User> Cuptransaction(CupTransaction cupTransaction)
+        {
+            if (ApiConnectionAvailable())
+            {
+                try
+                {
+                    string uri = ApiRoutes.CuptransactionUrl;
+
+                    ResetRequestHeaders(true);
+
+                    var jsonString = JsonConvert.SerializeObject(cupTransaction);
+
+                    StringContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+                    //content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+                    var response = await HttpClient.PostAsync(uri, content).ConfigureAwait(false);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        var responseresult = JsonConvert.DeserializeObject<User>(result);
+                        return responseresult;
+
+                    }
+
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+
+            ShowConnectionAlert();
             return null;
         }
 
@@ -397,78 +501,6 @@ namespace eCups.Services
                 catch
                 {
                     //unkown error
-                }
-            }
-
-            ShowConnectionAlert();
-            return null;
-        }
-
-        public async Task<User> Qrcode(string qrresponse)
-        {
-            if (ApiConnectionAvailable())
-            {
-                try
-                {
-                    string uri = ApiRoutes.QrCodeUrl;
-
-                    ResetRequestHeaders(true);
-
-                    StringContent content = new StringContent(qrresponse, Encoding.UTF8, "application/json");
-                    //content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-                    var response = await HttpClient.PostAsync(uri, content).ConfigureAwait(false);
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        var result = await response.Content.ReadAsStringAsync();
-                        var responseresult = JsonConvert.DeserializeObject<User>(result);
-                        return responseresult;
-                   
-                    }
-
-
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
-            }
-
-            ShowConnectionAlert();
-            return null;
-        }
-
-        public async Task<User> Cuptransaction(CupTransaction cupTransaction)
-        {
-            if (ApiConnectionAvailable())
-            {
-                try
-                {
-                    string uri = ApiRoutes.CuptransactionUrl;
-
-                    ResetRequestHeaders(true);
-
-                    var jsonString = JsonConvert.SerializeObject(cupTransaction);
-
-                    StringContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
-                    //content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-                    var response = await HttpClient.PostAsync(uri, content).ConfigureAwait(false);
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        var result = await response.Content.ReadAsStringAsync();
-                        var responseresult = JsonConvert.DeserializeObject<User>(result);
-                        return responseresult;
-
-                    }
-
-
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
                 }
             }
 

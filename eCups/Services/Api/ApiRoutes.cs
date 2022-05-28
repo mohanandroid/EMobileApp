@@ -12,8 +12,12 @@ namespace eCups.Services.Api
         public static string UserDetailsUrl = BaseUrl + "userprofile";
         public static string UpdateUserDetailsUrl = BaseUrl + "updateprofile";
         public static string QrCodeUrl = BaseUrl + "qrcode";
-        public static string GetLoyaltyLevels = BaseUrl + "loyalty-levels";
+
+
+        public static string UpdateUserPasswordUrl = BaseUrl + "update-password";
         public static string CuptransactionUrl = BaseUrl + "cuptransaction";
+
+        public static string GetLoyaltyLevels = BaseUrl + "loyalty-levels";
 
         //Shop Related API Calls
         public static string GetCafesUrl = BaseUrl + "fetch-cafes";

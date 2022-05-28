@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using eCups.Branding;
 using eCups.Components.Composites;
@@ -8,7 +9,9 @@ using eCups.Helpers;
 using eCups.Helpers.Custom;
 using eCups.Layouts.Custom;
 using eCups.Models.Custom;
+using eCups.Services.Storage;
 using Xamarin.Forms;
+using static eCups.Models.User;
 
 namespace eCups.Pages.Custom
 {
@@ -64,8 +67,18 @@ namespace eCups.Pages.Custom
                 Margin = new Thickness(0, 0, 0, 0)
             };
 
-            //TODO - Loop foreach cup setting last to true
-            stack.Children.Add(MyCupGrid(AppSession.CurrentUser.ActiveEcup, true));
+            if (!String.IsNullOrEmpty(LocalDataStore.Load("Cupscount")))
+            {
+                stack.Children.Add(Title());
+                //TODO - Loop foreach cup setting last to true
+                foreach (CupsHolding cups in AppSession.CurrentUser.details.cups_holding)
+                {
+                    stack.Children.Add(MyCupGrid(cups, true));
+
+                }
+                //stack.Children.Add(AddCupButton());
+
+            }
 
             try
             {
@@ -142,35 +155,40 @@ namespace eCups.Pages.Custom
             return mainLayout;
         }
 
-        Grid MyCupGrid(Ecup cup, bool addCupButton)
+        Grid MyCupGrid(CupsHolding cup, bool addCupButton)
         {
+
+
             Grid content = new Grid
             {
-                Margin = new Thickness(Units.ScreenWidth10Percent, Units.ScreenHeight15Percent, Units.ScreenWidth10Percent, 0),
+                Margin = new Thickness(5, 5, 5, 0),
                 VerticalOptions = LayoutOptions.StartAndExpand,
                 HorizontalOptions = LayoutOptions.FillAndExpand,
-                ColumnSpacing = 30,
+                ColumnSpacing = 10,
                 RowSpacing = 15,
                 ColumnDefinitions =
                 {
-                    new ColumnDefinition { Width = new GridLength(90, GridUnitType.Absolute)},
+                      new ColumnDefinition { Width = new GridLength(90, GridUnitType.Absolute)},
                     new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto)}
                 },
                 RowDefinitions =
                 {
-                    new RowDefinition { Height = new GridLength(25, GridUnitType.Absolute)},
+                   new RowDefinition { Height = new GridLength(25, GridUnitType.Absolute)},
                     new RowDefinition { Height = new GridLength(40, GridUnitType.Absolute)},
                     new RowDefinition { Height = new GridLength(40, GridUnitType.Absolute)},
                     new RowDefinition { Height = new GridLength(1, GridUnitType.Auto)},
                     new RowDefinition { Height = new GridLength(1, GridUnitType.Auto)}
                 }
+
             };
+
 
             Label header = new Label
             {
                 Text = "Your Ecup:",
                 FontFamily = Fonts.GetBoldFont(),
                 FontSize = 16,
+                IsVisible = false,
                 TextColor = Color.FromHex(Colors.EC_GREEN_1),
                 VerticalOptions = LayoutOptions.Center,
                 HorizontalOptions = LayoutOptions.Start,
@@ -184,12 +202,11 @@ namespace eCups.Pages.Custom
                 Aspect = Aspect.AspectFit,
                 HeightRequest = 100,
                 VerticalOptions = LayoutOptions.StartAndExpand,
-                HorizontalOptions = LayoutOptions.StartAndExpand
+                HorizontalOptions = LayoutOptions.FillAndExpand
             };
 
-            StackLayout serial = CupInfo("Ecup Serial No:", cup.SerialNumber);
-            StackLayout date = CupInfo("Registered Date", cup.RegisteredDate.ToString());
-
+            StackLayout serial = CupInfo("Ecup Serial No:", cup.ecups_serial_no);
+            StackLayout date = CupInfo("Registered Date", cup.created_at.ToString());
 
 
             content.Children.Add(header, 0, 0);
@@ -211,8 +228,50 @@ namespace eCups.Pages.Custom
                 Grid.SetColumnSpan(addNewCup.GetContent(), content.ColumnDefinitions.Count);
             }
 
+
             return content;
+
         }
+
+        Label Title()
+        {
+
+            Label title = new Label
+            {
+                Text = "Your Ecup:",
+                FontFamily = Fonts.GetBoldFont(),
+                FontSize = 16,
+                TextColor = Color.FromHex(Colors.EC_GREEN_1),
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                HorizontalTextAlignment = TextAlignment.Start,
+                VerticalTextAlignment = TextAlignment.Center,
+            };
+
+            return title;
+        }
+        StackLayout AddCupButton()
+        {
+            StackLayout infoStack = new StackLayout
+            {
+                Orientation = StackOrientation.Vertical,
+                VerticalOptions = LayoutOptions.Start,
+                BackgroundColor = Color.Transparent,// FromHex("eeeeee"),
+                Spacing = 10,
+                WidthRequest = Units.ScreenWidth,
+                Margin = new Thickness(0, 0, 0, 50)
+            };
+            ColourButton addNewCup = new ColourButton(Color.FromHex(Colors.EC_GREEN_3), Color.White, "Add New Cup", new Models.Action((int)Helpers.Actions.ActionName.GoToPage, (int)AppSettings.PageNames.QRScanner));
+
+            addNewCup.SetSize(150, 25);
+            addNewCup.SetFontSize(10);
+            addNewCup.Content.HorizontalOptions = LayoutOptions.Start;
+
+            infoStack.Children.Add(addNewCup.GetContent());
+            return infoStack;
+        }
+
+
 
         StackLayout UserInfo()
         {
@@ -239,10 +298,14 @@ namespace eCups.Pages.Custom
                 Margin = new Thickness(0, 10)
             };
 
-            LabelEntry name = new LabelEntry("Name:", AppSession.CurrentUserDetails.name, false);
-            LabelEntry email = new LabelEntry("Email:", AppSession.CurrentUserDetails.email, false);
-            LabelEntry user = new LabelEntry("User:", AppSession.CurrentUserDetails.surname, false);
-            LabelEntry password = new LabelEntry("Password:", "", false);
+            LabelEntry name = new LabelEntry("Name:", AppSession.CurrentUserDetails.name, false, true);
+            LabelEntry email = new LabelEntry("Email:", AppSession.CurrentUserDetails.email, false, true);
+
+            LabelEntry user = new LabelEntry("User:", LocalDataStore.Load("Username"), false, true);
+
+
+            LabelEntry password = new LabelEntry("Password:", LocalDataStore.Load("Password"), false, true);
+            // LabelEntry confirmPassword = new LabelEntry("Confirm Password:", LocalDataStore.Load("PASSWORD"), false, true);
 
             password.Content.GestureRecognizers.Add(new TapGestureRecognizer()
             {
@@ -270,20 +333,23 @@ namespace eCups.Pages.Custom
             };
 
             //LabelEntry address = new LabelEntry("Address:", AppSession.CurrentUserDetails.address3.FormattedAddress(), false);
-            LabelEntry address = new LabelEntry("Address:", AppSession.CurrentUserDetails.address2, false);
-            LabelEntry contact = new LabelEntry("Contact:", AppSession.CurrentUserDetails.phone.ToString(), false);
+            LabelEntry address = new LabelEntry("Address:", AppSession.CurrentUserDetails.address2, false, true);
+            LabelEntry contact = new LabelEntry("Contact:", AppSession.CurrentUserDetails.phone.ToString(), false, true);
 
             infoStack.Children.Add(detailsHeader);
             infoStack.Children.Add(name.Content);
             infoStack.Children.Add(email.Content);
             infoStack.Children.Add(user.Content);
             infoStack.Children.Add(password.Content);
+            // infoStack.Children.Add(confirmPassword.Content);
             infoStack.Children.Add(contactDetails);
             infoStack.Children.Add(address.Content);
             infoStack.Children.Add(contact.Content);
 
             return infoStack;
         }
+
+
 
         StackLayout CupInfo(string headerText, string subHeaderText)
         {
@@ -339,6 +405,8 @@ namespace eCups.Pages.Custom
                 await DebugUpdate(AppSettings.TransitionVeryFast);
 
                 bool value = await App.ApiBridge.GetUser();
+                await App.HideLoading();
+
 
                 this.HasHeader = false;
                 this.HasFooter = true;
@@ -352,7 +420,7 @@ namespace eCups.Pages.Custom
 
                 AddMenuBar();
                 //App.ShowMenuButton();
-                App.HideMenuButton();
+                // App.HideMenuButton();
                 NeedsRefreshing = false;
             }
         }
