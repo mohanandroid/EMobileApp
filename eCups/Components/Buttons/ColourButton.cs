@@ -1,5 +1,6 @@
 ﻿using System;
 using eCups.Helpers;
+using eCups.Services.Storage;
 using eCups.Tools;
 using Xamarin.Forms;
 using XFShapeView;
@@ -76,6 +77,10 @@ namespace eCups.e.Buttons
                         {
                             Device.BeginInvokeOnMainThread(async () =>
                             {
+                                if(buttonText== "Add New Cup")
+                                {
+                                    LocalDataStore.Save("Page", "Your Account");
+                                }
                                 await this.DefaultAction.Execute();
                             });
                         })

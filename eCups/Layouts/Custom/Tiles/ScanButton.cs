@@ -3,6 +3,7 @@ using eCups.Branding;
 using eCups.e.Images;
 using eCups.e.Labels;
 using eCups.Helpers;
+using eCups.Services.Storage;
 using Xamarin.Forms;
 
 namespace eCups.Layouts.Custom.Tiles
@@ -34,6 +35,7 @@ namespace eCups.Layouts.Custom.Tiles
                            Device.BeginInvokeOnMainThread(async () =>
                            {
                                //AppSession.SignUpStage = 1;
+                               LocalDataStore.Clear("Page");
                                await App.PerformActionAsync((int)Actions.ActionName.GoToPage, (int)AppSettings.PageNames.QRScanner);
                                //NextSection();
                            });
