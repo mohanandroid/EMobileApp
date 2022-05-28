@@ -2,6 +2,7 @@
 using eCups.Branding;
 using eCups.Components.Fields;
 using eCups.Helpers;
+using eCups.Models;
 using Xamarin.Forms;
 
 namespace eCups.Components.Composites
@@ -18,7 +19,7 @@ namespace eCups.Components.Composites
 
         string text;
 
-        public LabelEntry(string titleText, string labelText, bool hidden)
+        public LabelEntry(string titleText, string labelText, bool hidden, bool isEdit)
         {
             text = labelText;
             this.Content = new Grid
@@ -70,10 +71,10 @@ namespace eCups.Components.Composites
                 TextDecorations = TextDecorations.Underline,
                 FontSize = 12,
                 TextColor = Color.FromHex(Colors.EC_BRIGHT_GREEN),
-                //VerticalOptions = LayoutOptions.Center,
-                //HorizontalOptions = LayoutOptions.Start,
-                //HorizontalTextAlignment = TextAlignment.Start,
-                //VerticalTextAlignment = TextAlignment.Center,
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                HorizontalTextAlignment = TextAlignment.Start,
+                VerticalTextAlignment = TextAlignment.Center,
             };
 
             Entry entry = new Entry
@@ -81,13 +82,16 @@ namespace eCups.Components.Composites
                 Text = labelText,
                 BackgroundColor = Color.Transparent,
                 TextColor = Color.Transparent,
+                Placeholder = titleText,
                 PlaceholderColor = Color.Transparent,
                 Opacity = 0,
                 VerticalOptions = LayoutOptions.Center,
                 HorizontalOptions = LayoutOptions.Start,
                 HorizontalTextAlignment = TextAlignment.Start,
-                VerticalTextAlignment = TextAlignment.Center,
-                Placeholder = titleText
+                VerticalTextAlignment = TextAlignment.Center
+                /*IsEnabled = false*/
+
+
             };
 
             entry.TextChanged += Entry_TextChanged;
@@ -96,16 +100,19 @@ namespace eCups.Components.Composites
             EditLabel.GestureRecognizers.Add(new TapGestureRecognizer
             {
                 Command = new Command(() =>
-              {
-                  entry.Focus();
-              })
+                {
+                    entry.Focus();
+                    // entry.IsEnabled = true;
+                })
             });
 
             this.Content.Children.Add(TitleLabel, 0, 0);
             this.Content.Children.Add(EntryLabel, 1, 0);
             this.Content.Children.Add(entry, 1, 0);
-            this.Content.Children.Add(EditLabel, 2, 0);
-
+            if (isEdit)
+            {
+                this.Content.Children.Add(EditLabel, 2, 0);
+            }
             if (hidden)
             {
                 passDisplay = true;
@@ -135,23 +142,32 @@ namespace eCups.Components.Composites
             }
         }
 
-        private void Entry_Unfocused(object sender, FocusEventArgs e)
+        private async void Entry_Unfocused(object sender, FocusEventArgs e)
         {
             //Update User Profile
             Entry entry = sender as Entry;
-            string key="";
+            string key = "";
             Device.BeginInvokeOnMainThread(async () =>
             {
                 await App.ShowLoading();
-                if (entry.Placeholder.Contains("Name")){
+                if (entry.Placeholder.Contains("Name"))
+                {
                     key = "name";
-                }else if (entry.Placeholder.Contains("Email")){
+                }
+                else if (entry.Placeholder.Contains("Email"))
+                {
                     key = "email";
-                }else if (entry.Placeholder.Contains("User")){
+                }
+                else if (entry.Placeholder.Contains("User"))
+                {
                     key = "username";
-                }else if (entry.Placeholder.Contains("Password")){
+                }
+                else if (entry.Placeholder.Contains("Password"))
+                {
                     key = "password";
-                }else if (entry.Placeholder.Contains("Contact")){
+                }
+                else if (entry.Placeholder.Contains("Contact"))
+                {
                     key = "phone";
                 }
                 var result = await App.ApiBridge.UpdateUserDetails(key, entry.Text);
@@ -163,9 +179,16 @@ namespace eCups.Components.Composites
                 else
                 {
                     await App.HideLoading();
-                    AppSession.CurrentUserDetails = result.details;
+                    App.ShowAlert("Alert", result.message);
+                    if (result.details != null)
+                    {
+                        AppSession.CurrentUserDetails = result.details;
+                    }
+
                 }
             });
+
+
         }
 
         private void Entry_TextChanged(object sender, TextChangedEventArgs e)

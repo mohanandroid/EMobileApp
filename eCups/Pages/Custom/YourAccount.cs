@@ -76,7 +76,7 @@ namespace eCups.Pages.Custom
                     stack.Children.Add(MyCupGrid(cups, true));
 
                 }
-                //stack.Children.Add(AddCupButton());
+                stack.Children.Add(AddCupButton());
 
             }
 
@@ -216,7 +216,7 @@ namespace eCups.Pages.Custom
             content.Children.Add(serial, 1, 1);
             content.Children.Add(date, 1, 2);
 
-            if (addCupButton)
+            /*if (addCupButton)
             {
                 ColourButton addNewCup = new ColourButton(Color.FromHex(Colors.EC_GREEN_3), Color.White, "Add New Cup", new Models.Action((int)Helpers.Actions.ActionName.GoToPage, (int)AppSettings.PageNames.QRScanner));
 
@@ -226,7 +226,7 @@ namespace eCups.Pages.Custom
 
                 content.Children.Add(addNewCup.GetContent(), 0, 4);
                 Grid.SetColumnSpan(addNewCup.GetContent(), content.ColumnDefinitions.Count);
-            }
+            }*/
 
 
             return content;

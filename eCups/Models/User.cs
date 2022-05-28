@@ -117,6 +117,14 @@ namespace eCups.Models
             public int id { get; set; }
 
             public string auth_token { get; set; }
+            public List<CupsHolding> cups_holding { get; set; }
+        }
+
+        public class CupsHolding
+        {
+            public int id { get; set; }
+            public string ecups_serial_no { get; set; }
+            public DateTime created_at { get; set; }
         }
     }
 }
