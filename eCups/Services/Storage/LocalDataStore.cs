@@ -20,13 +20,19 @@ namespace eCups.Services.Storage
         {
             Console.WriteLine("Saved: " + key + " : " + data);
             Xamarin.Forms.Application.Current.Properties[key] = data;
+            Xamarin.Forms.Application.Current.SavePropertiesAsync();
         }
 
         public static string Load(string key)
         {
-            string data = (string)Xamarin.Forms.Application.Current.Properties[key];
-            Console.WriteLine("Loaded: " + key + " : " + data);
-            return data;
+
+            if (Xamarin.Forms.Application.Current.Properties.ContainsKey(key))
+            {
+                string data = (string)Xamarin.Forms.Application.Current.Properties[key];
+                Console.WriteLine("Loaded: " + key + " : " + data);
+                return data;
+            }
+            return null;
         }
 
         public static void SaveAll()
@@ -43,6 +49,16 @@ namespace eCups.Services.Storage
             catch (Exception e)
             {
                 Console.WriteLine("No user saved");
+            }
+            return null;
+        }
+
+        public static string Clear(string key)
+        {
+
+            if (Xamarin.Forms.Application.Current.Properties.ContainsKey(key))
+            {
+                Xamarin.Forms.Application.Current.Properties.Remove(key);
             }
             return null;
         }

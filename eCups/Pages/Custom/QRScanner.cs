@@ -10,6 +10,10 @@ using eCups.Services;
 using eCups.Renderers;
 using ZXing.Net.Mobile.Forms;
 using System.Diagnostics;
+using Acr.UserDialogs;
+using eCups.Services.Storage;
+using Newtonsoft.Json;
+using eCups.Models;
 
 namespace eCups.Pages.Custom
 {
@@ -22,7 +26,7 @@ namespace eCups.Pages.Custom
         Label debugText;
         ZXingScannerView cam;
         StaticImage camFocus;
-
+        CupTransaction cupTransaction;
         public QRScanner()
         {
             this.IsScrollable = false;
@@ -89,7 +93,7 @@ namespace eCups.Pages.Custom
             ExitButton = new IconButton(28, 28, Color.Transparent, Color.White, "Scan QR Code", "close.png", new Models.Action((int)Actions.ActionName.GoToPage, (int)AppSettings.PageNames.Home));
             ExitButton.Content.VerticalOptions = LayoutOptions.Center;
             ExitButton.Content.HorizontalOptions = LayoutOptions.End;
-            ExitButton.Content.Margin = new Thickness(0, 0, Units.ScreenWidth10Percent, 0);
+            ExitButton.Content.Margin = new Thickness(0, Units.ScreenHeight5Percent, Units.ScreenWidth10Percent, 0);
 
             Header.Children.Add(MainLogo.Content, 0, 0);
             Header.Children.Add(ExitButton.Content, 1, 0);
@@ -129,17 +133,81 @@ namespace eCups.Pages.Custom
         {
             //debug actions
             Debug.WriteLine("QR Data: " + result.Text);
-            if(result.Text.Contains(AppSettings.QRPreCode))
+            UserDialogs.Instance.ShowLoading();
+            if (LocalDataStore.Load("Qrcode") == null && LocalDataStore.Load("Page")!=null)
             {
-                //TODO check validity of QR Code here
-                if (true)
-                {
-                    cam.IsScanning = false;
-                    Device.BeginInvokeOnMainThread(async () =>
+                //if (result.Text.Contains(AppSettings.QRPreCode))
+                //{
+                    //TODO check validity of QR Code here
+                    if (true)
                     {
-                        await App.PerformActionAsync((int)Actions.ActionName.GoToPage, (int)AppSettings.PageNames.CodeScanned);
-                    });
+                    UserDialogs.Instance.HideLoading();
+                    var Confirmresult = await UserDialogs.Instance.ConfirmAsync("Successfully Valid Cup QRCode.Please Click Next to Proceed Store Validation", "Cup QRCode", "Next", "Cancel");
+
+                        if (Confirmresult)
+                        {
+                            LocalDataStore.Save("Qrcode", result.Text);
+                        }
+
+                        //cam.IsScanning = false;
+                        //Device.BeginInvokeOnMainThread(async () =>
+                        //{
+                        //    await App.PerformActionAsync((int)Actions.ActionName.GoToPage, (int)AppSettings.PageNames.CodeScanned);
+                        //});
+                    }
+                //}
+                
+            }else if(LocalDataStore.Load("Qrcode") != null)
+            {
+                if (result.Text.Contains("code"))
+                {
+                    var responseresult = JsonConvert.DeserializeObject<CupTransaction>(result.Text);
+                    var Qrresult = await App.ApiBridge.Qrcode(result.Text);
+                    UserDialogs.Instance.HideLoading();
+                    if (Qrresult != null)
+                    {
+                        if (Qrresult.error)
+                        {
+                            App.ShowAlert("Alert", Qrresult.message);
+                        }
+                        else
+                        {
+
+                            await UserDialogs.Instance.AlertAsync(Qrresult.message, "Alert", "Ok");
+                            UserDialogs.Instance.ShowLoading();
+                            cupTransaction = new CupTransaction
+                            {
+                                OutletID = responseresult.id,
+                                TransactionType = "buy",
+                                QRCode = responseresult.code
+                            };
+                            var transactionresult = await App.ApiBridge.Cuptransaction(cupTransaction);
+                            UserDialogs.Instance.HideLoading();
+                            if (transactionresult != null)
+                            {
+                                if (transactionresult.error)
+                                {
+                                    App.ShowAlert("Alert", transactionresult.message);
+                                }
+                                else
+                                {
+                                    LocalDataStore.Clear("Qrcode");
+                                    LocalDataStore.Clear("Page");
+                                    await UserDialogs.Instance.AlertAsync(transactionresult.message, "Alert", "Ok");
+                                    Device.BeginInvokeOnMainThread(async () =>
+                                    {
+                                        await App.PerformActionAsync((int)Actions.ActionName.GoToPage, (int)AppSettings.PageNames.Home);
+                                    });
+                                }
+                            }
+                        }
+                        
+                    }
                 }
+            }
+            else
+            {
+                UserDialogs.Instance.HideLoading();
             }
         }
     }

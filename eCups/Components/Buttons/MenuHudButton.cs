@@ -5,6 +5,7 @@ using eCups.e.Images;
 using eCups.e.Labels;
 using eCups.Helpers;
 using eCups.Helpers.Custom;
+using eCups.Services.Storage;
 using MagicGradients;
 using Xamarin.Forms;
 
@@ -35,6 +36,7 @@ namespace eCups.Components.Buttons
                        Device.BeginInvokeOnMainThread(async () =>
                        {
                            Console.WriteLine("Pressed");
+                           LocalDataStore.Clear("Page");
                            await App.PerformActionAsync(action);
                        });
                    })

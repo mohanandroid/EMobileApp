@@ -404,6 +404,78 @@ namespace eCups.Services
             return null;
         }
 
+        public async Task<User> Qrcode(string qrresponse)
+        {
+            if (ApiConnectionAvailable())
+            {
+                try
+                {
+                    string uri = ApiRoutes.QrCodeUrl;
+
+                    ResetRequestHeaders(true);
+
+                    StringContent content = new StringContent(qrresponse, Encoding.UTF8, "application/json");
+                    //content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+                    var response = await HttpClient.PostAsync(uri, content).ConfigureAwait(false);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        var responseresult = JsonConvert.DeserializeObject<User>(result);
+                        return responseresult;
+                   
+                    }
+
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+
+            ShowConnectionAlert();
+            return null;
+        }
+
+        public async Task<User> Cuptransaction(CupTransaction cupTransaction)
+        {
+            if (ApiConnectionAvailable())
+            {
+                try
+                {
+                    string uri = ApiRoutes.CuptransactionUrl;
+
+                    ResetRequestHeaders(true);
+
+                    var jsonString = JsonConvert.SerializeObject(cupTransaction);
+
+                    StringContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+                    //content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+                    var response = await HttpClient.PostAsync(uri, content).ConfigureAwait(false);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        var responseresult = JsonConvert.DeserializeObject<User>(result);
+                        return responseresult;
+
+                    }
+
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+
+            ShowConnectionAlert();
+            return null;
+        }
+
         string CleanUpJson(string dirty)
         {
             string clean = dirty;
