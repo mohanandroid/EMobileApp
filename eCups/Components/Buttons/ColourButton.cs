@@ -77,9 +77,13 @@ namespace eCups.e.Buttons
                         {
                             Device.BeginInvokeOnMainThread(async () =>
                             {
-                                if(buttonText== "Add New Cup")
+                                if(buttonText== "Add Cup / Return Cup")
                                 {
-                                    LocalDataStore.Save("Page", "Your Account");
+                                    LocalDataStore.Save("Page", "Add Cup / Return Cup");
+                                }else if(buttonText == "Buy a Drink")
+                                {
+                                    LocalDataStore.Clear("Qrcode");
+                                    LocalDataStore.Save("RadioButtonValue", "refill");
                                 }
                                 await this.DefaultAction.Execute();
                             });

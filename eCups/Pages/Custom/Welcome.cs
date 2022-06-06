@@ -23,6 +23,9 @@ namespace eCups.Pages.Custom
 
         ColourButton MenuButton;
         ColourButton SignInButton;
+        ColourButton BuyButton;
+        ColourButton ViewRewardsButton;
+        ColourButton AddReturnButton;
 
         StaticImage MainLogo;
         StaticLabel CongratulationsLabel;
@@ -104,6 +107,18 @@ namespace eCups.Pages.Custom
             MenuButton.AddBorder(Color.White, 2);
             MenuButton.Content.VerticalOptions = LayoutOptions.EndAndExpand;
 
+            BuyButton = new ColourButton(Color.Transparent, Color.White, "Buy a Drink", new Models.Action((int)Actions.ActionName.GoToPage, (int)AppSettings.PageNames.QRScanner));
+            BuyButton.AddBorder(Color.White, 2);
+            BuyButton.Content.VerticalOptions = LayoutOptions.EndAndExpand;
+
+            ViewRewardsButton = new ColourButton(Color.Transparent, Color.White, "View Rewards", new Models.Action((int)Actions.ActionName.GoToPage, (int)AppSettings.PageNames.YourRewards));
+            ViewRewardsButton.AddBorder(Color.White, 2);
+            ViewRewardsButton.Content.VerticalOptions = LayoutOptions.EndAndExpand;
+
+            AddReturnButton = new ColourButton(Color.Transparent, Color.White, "Add Cup / Return Cup", new Models.Action((int)Actions.ActionName.GoToPage, (int)AppSettings.PageNames.QRScanner));
+            AddReturnButton.AddBorder(Color.White, 2);
+            AddReturnButton.Content.VerticalOptions = LayoutOptions.EndAndExpand;
+
             SignInButton = new ColourButton(Color.Transparent, Color.FromHex(Colors.EC_BRIGHT_GREEN), "Login", null);
             SignInButton.AddBorder(Color.FromHex(Colors.EC_BRIGHT_GREEN), 2);
             SignInButton.Content.VerticalOptions = LayoutOptions.EndAndExpand;
@@ -162,7 +177,10 @@ namespace eCups.Pages.Custom
             MainLayout.Children.Add(Info.Content);
 
             MainLayout.Children.Add(MenuButton.Content);
-            MainLayout.Children.Add(ScannerButton.Content);
+            MainLayout.Children.Add(BuyButton.Content);
+            MainLayout.Children.Add(ViewRewardsButton.Content);
+            MainLayout.Children.Add(AddReturnButton.Content);
+            //MainLayout.Children.Add(ScannerButton.Content);
 
             MainLayout.Children.Add(CupAndCrab.Content);
         }
@@ -185,7 +203,7 @@ namespace eCups.Pages.Custom
         {
             var result = await App.ApiBridge.LogIn(Username.GetText(), Password.GetText());
             await App.HideLoading();
-            if (!result)
+            if (result.error)
             {
                 App.ShowAlert("Alert", "Login failed");
             }
