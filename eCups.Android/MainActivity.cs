@@ -72,7 +72,7 @@ namespace eCups.Droid
             ToolbarResource = Resource.Layout.Toolbar;
 
             base.OnCreate(savedInstanceState);
-
+            global::Xamarin.Forms.Forms.SetFlags(new string[] { "RadioButton_Experimental" });
             CrossCurrentActivity.Current.Init(this, savedInstanceState);
 
             PullToRefreshLayoutRenderer.Init();

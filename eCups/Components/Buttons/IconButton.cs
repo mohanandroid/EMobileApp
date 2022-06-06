@@ -1,6 +1,7 @@
 ﻿using System;
 using eCups.e.Images;
 using eCups.Helpers;
+using eCups.Services.Storage;
 using Xamarin.Forms;
 using XFShapeView;
 
@@ -100,6 +101,7 @@ namespace eCups.e.Buttons
                             Device.BeginInvokeOnMainThread(async () =>
                             {
                                 //await Update();
+                                LocalDataStore.Clear("RadioButtonValue");
                                 await DefaultAction.Execute();
                             });
                         })

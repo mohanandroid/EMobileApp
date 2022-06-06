@@ -84,6 +84,11 @@ namespace eCups.Pages.Custom
                 {
                     new ColumnDefinition(),
                     new ColumnDefinition()
+                },
+
+                RowDefinitions =
+                {
+                    new RowDefinition(),
                 }
             };
 
@@ -98,6 +103,35 @@ namespace eCups.Pages.Custom
             Header.Children.Add(MainLogo.Content, 0, 0);
             Header.Children.Add(ExitButton.Content, 1, 0);
 
+            if (LocalDataStore.Load("Page") == "Add Cup / Return Cup")
+            {
+
+                StackLayout radioLayout = new StackLayout
+                {
+                    Orientation = StackOrientation.Horizontal,
+                    BackgroundColor = Color.Transparent,// FromHex("eeeeee"),
+                };
+
+                RadioButton AddCupRadiobutton = new RadioButton();
+                AddCupRadiobutton.Text = "Add Cup";
+                AddCupRadiobutton.TextColor = Color.White;
+                AddCupRadiobutton.FontSize = 16;
+                AddCupRadiobutton.Margin = new Thickness(Units.ScreenWidth5Percent, 0, 0, 50);
+                AddCupRadiobutton.CheckedChanged += AddCupRadiobutton_CheckedChanged;
+
+                RadioButton ReturnCupRadioutton = new RadioButton();
+                ReturnCupRadioutton.Text = "Return Cup";
+                ReturnCupRadioutton.TextColor = Color.White;
+                ReturnCupRadioutton.FontSize = 16;
+                ReturnCupRadioutton.Margin = new Thickness(0, 0, 0, 50);
+                ReturnCupRadioutton.CheckedChanged += AddCupRadiobutton_CheckedChanged;
+
+                radioLayout.Children.Add(AddCupRadiobutton);
+                radioLayout.Children.Add(ReturnCupRadioutton);
+
+                Header.Children.Add(radioLayout, 0, 1);
+            }
+
             mainLayout.Children.Add(Header);
 
             camFocus = new StaticImage("qrScanFrame.png", (int)(Units.ScreenWidth * 0.8), null);
@@ -109,6 +143,19 @@ namespace eCups.Pages.Custom
             //camFocus.Content.TranslateTo(Units.HalfScreenWidth, Units.HalfScreenHeight, 0, null);
 
             return mainLayout;
+        }
+
+        private void AddCupRadiobutton_CheckedChanged(object sender, CheckedChangedEventArgs e)
+        {
+            RadioButton radioButton = sender as RadioButton;
+            if (radioButton.Text == "Add Cup")
+            {
+                LocalDataStore.Save("RadioButtonValue", "buy");
+            }
+            else
+            {
+                LocalDataStore.Save("RadioButtonValue", "return");
+            }
         }
 
         public override async Task Update()
@@ -134,7 +181,7 @@ namespace eCups.Pages.Custom
             //debug actions
             Debug.WriteLine("QR Data: " + result.Text);
             UserDialogs.Instance.ShowLoading();
-            if (LocalDataStore.Load("Qrcode") == null && LocalDataStore.Load("Page")!=null)
+            if (LocalDataStore.Load("Qrcode") == null)
             {
                 //if (result.Text.Contains(AppSettings.QRPreCode))
                 //{
@@ -178,7 +225,7 @@ namespace eCups.Pages.Custom
                             cupTransaction = new CupTransaction
                             {
                                 OutletID = responseresult.id,
-                                TransactionType = "buy",
+                                TransactionType = LocalDataStore.Load("RadioButtonValue"),
                                 QRCode = responseresult.code
                             };
                             var transactionresult = await App.ApiBridge.Cuptransaction(cupTransaction);
@@ -193,6 +240,7 @@ namespace eCups.Pages.Custom
                                 {
                                     LocalDataStore.Clear("Qrcode");
                                     LocalDataStore.Clear("Page");
+                                    LocalDataStore.Clear("RadioButtonValue");
                                     await UserDialogs.Instance.AlertAsync(transactionresult.message, "Alert", "Ok");
                                     Device.BeginInvokeOnMainThread(async () =>
                                     {

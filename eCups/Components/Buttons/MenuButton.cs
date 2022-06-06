@@ -4,6 +4,7 @@ using eCups.Branding;
 using eCups.e.Composites;
 using eCups.e.Images;
 using eCups.Helpers;
+using eCups.Services.Storage;
 using FFImageLoading.Transformations;
 using Xamarin.Forms;
 
@@ -99,6 +100,11 @@ namespace eCups.e.Buttons
                             Device.BeginInvokeOnMainThread(async () =>
                             {
                                 //await Update();
+                                if (buttonText == "QR Scanner")
+                                {
+                                    LocalDataStore.Clear("Qrcode");
+                                    LocalDataStore.Save("RadioButtonValue", "buy");
+                                }
                                 await DefaultAction.Execute();
                             });
                         })

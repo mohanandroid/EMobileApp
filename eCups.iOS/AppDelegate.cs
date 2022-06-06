@@ -29,7 +29,7 @@ namespace eCups.iOS
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
             //UIApplication.SharedApplication.SetStatusBarStyle(UIStatusBarStyle.LightContent, false);
-
+            global::Xamarin.Forms.Forms.SetFlags(new string[] { "RadioButton_Experimental" });
             global::Xamarin.Forms.Forms.Init();
 
             //KeyboardOverlapRenderer.Init();
@@ -43,7 +43,7 @@ namespace eCups.iOS
 
             //LoadApplication(new App((int)UIScreen.MainScreen.Bounds.Width, (int)UIScreen.MainScreen.Bounds.Height));
             //_app = new App((int)UIScreen.MainScreen.Bounds.Width, (int)UIScreen.MainScreen.Bounds.Height);
-
+            
             ZXing.Net.Mobile.Forms.iOS.Platform.Init();
             Xamarin.Forms.Forms.Init();
             Xamarin.FormsMaps.Init();
