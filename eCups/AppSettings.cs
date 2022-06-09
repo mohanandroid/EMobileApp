@@ -43,7 +43,8 @@ namespace eCups
             AboutUs,
             AccountCreated,
             NewLevel,
-            CodeScanned
+            CodeScanned,
+            EmailVerficiation
         };
 
         public static int TransitionSlow = 1500;

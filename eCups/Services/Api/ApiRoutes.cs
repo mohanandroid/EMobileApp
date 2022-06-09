@@ -12,7 +12,7 @@ namespace eCups.Services.Api
         public static string UserDetailsUrl = BaseUrl + "userprofile";
         public static string UpdateUserDetailsUrl = BaseUrl + "updateprofile";
         public static string QrCodeUrl = BaseUrl + "qrcode";
-
+        public static string ResendMailUrl = BaseUrl + "resendemails";
 
         public static string UpdateUserPasswordUrl = BaseUrl + "update-password";
         public static string CuptransactionUrl = BaseUrl + "cuptransaction";
