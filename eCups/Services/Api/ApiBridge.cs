@@ -334,6 +334,46 @@ namespace eCups.Services
             return null;
         }
 
+        public async Task<User> ResendEmail(string email)
+        {
+            if (ApiConnectionAvailable())
+            {
+                try
+                {
+                    string uri = ApiRoutes.ResendMailUrl;
+
+                    ResetRequestHeaders(false);
+
+                    JObject jObject = new JObject();
+
+                    jObject.Add("email", email);
+                    
+                    string jsonString = CleanUpJson(jObject.ToString());
+
+                    StringContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+                    
+                    var response = await HttpClient.PostAsync(uri, content).ConfigureAwait(false);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+
+                        var responseresult = JsonConvert.DeserializeObject<User>(result);
+                        
+                        return responseresult;
+                    }
+                   
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+
+            ShowConnectionAlert();
+            return null;
+        }
+
         public async Task<bool> AddNewECup(Ecup cup)
         {
             if (ApiConnectionAvailable())

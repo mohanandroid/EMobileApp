@@ -330,9 +330,10 @@ namespace eCups
                 Helpers.Pages.AddPage(new Pages.Custom.AccountCreated());
                 Helpers.Pages.AddPage(new Pages.Custom.NewLevel());
                 Helpers.Pages.AddPage(new Pages.Custom.CodeScanned());
+                Helpers.Pages.AddPage(new Pages.Custom.EmailVerficiation());
 
                 // we can do this elsewhere, but for now, add it here
-                
+
                 ContentLayer.Layout.Children.Add(Helpers.Pages.GetPageById(AppSettings.FirstPage).GetContent()); //new TestPage1().Content);
                 Helpers.Pages.GetCurrent().Update();                
 
